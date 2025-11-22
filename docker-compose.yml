@@ -1,0 +1,36 @@
+services:
+  frontend:
+    container_name: pengin_party_frontend
+    build:
+      context: '.'
+      dockerfile: './frontend/Dockerfile'
+    volumes:
+      - ./frontend:/app
+    environment:
+      - WATCHPACK_POLLING=true
+    tty: true
+    # command: sh -c "npm install && npm run dev"
+    # command: sh -c "yarn install && yarn dev" # yarnだとうまくいかない
+    ports:
+      - "3000:3000"
+    # networks:
+    #   - pengin_party
+
+  backend:
+    container_name: pengin_party_backend
+    build:
+      context: '.'
+      dockerfile: './backend/Dockerfile'
+    volumes:
+      - ./backend:/go/pengin_party
+    environment:
+      - WATCHPACK_POLLING=true
+    tty: true
+    ports:
+      - "4000:4000"
+    # networks:
+    #   - pengin_party
+
+# networks:
+#   pengin_party:
+#     external: true
