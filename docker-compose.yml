@@ -25,7 +25,8 @@ services:
       - ./backend:/go/pengin_party
     environment:
       - WATCHPACK_POLLING=true
-    tty: true
+    # stdin_open: true
+    # tty: true
     ports:
       - "4000:4000"
     # networks:

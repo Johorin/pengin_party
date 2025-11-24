@@ -1,4 +1,4 @@
-FROM node:24-alpine
+FROM node:latest
 
 WORKDIR /app
 
@@ -6,3 +6,4 @@ WORKDIR /app
 # RUN npm install --save react@18.3.0 react-dom@18.3.0
 # RUN npm install --save next@14.2.3
 
+CMD ["sh", "-c", "npx create-next-app@latest my-app --yes"]
