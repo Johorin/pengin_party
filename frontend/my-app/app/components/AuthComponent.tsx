@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { signInWithPopup, signOut } from "firebase/auth";
+import { signInWithPopup, signOut, User } from "firebase/auth";
 import { auth, googleProvider } from '@/infrastructure/firebase';
 
 
 const AuthComponent = () => {
-  const [user, setUser] = useState(null); // ログイン状態
+  const [user, setUser] = useState<User | null>(null); // ログイン状態
 
   // ログイン状態の監視
   useEffect(() => {
