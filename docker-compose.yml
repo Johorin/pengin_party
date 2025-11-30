@@ -13,8 +13,8 @@ services:
     # command: sh -c "yarn install && yarn dev" # yarnだとうまくいかない
     ports:
       - "3000:3000"
-    # networks:
-    #   - pengin_party
+    networks:
+      - pengin_party
 
   backend:
     container_name: pengin_party_backend
@@ -29,8 +29,8 @@ services:
     tty: true
     ports:
       - "4000:4000"
-    # networks:
-    #   - pengin_party
+    networks:
+      - pengin_party
 
   mysql-db:
     container_name: mysql-db
@@ -41,10 +41,29 @@ services:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: password
+    networks:
+      - pengin_party
+
+  websocket-server:
+    container_name: websocket-server
+    build:
+      context: '.'
+      dockerfile: './websocket/Dockerfile'
+    volumes:
+      - ./websocket:/app
+    environment:
+      - WATCHPACK_POLLING=true
+    tty: true
+    # command: sh -c "npm install && npm run dev"
+    # command: sh -c "yarn install && yarn dev" # yarnだとうまくいかない
+    ports:
+      - "3001:3001"
+    networks:
+      - pengin_party
 
 volumes:
   mysql_data:
 
-# networks:
-#   pengin_party:
-#     external: true
+networks:
+  pengin_party:
+    driver: bridge
