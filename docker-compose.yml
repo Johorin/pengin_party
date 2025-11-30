@@ -5,7 +5,7 @@ services:
       context: '.'
       dockerfile: './frontend/Dockerfile'
     volumes:
-      - ./frontend:/app
+      - ./frontend/my-app:/app
     environment:
       - WATCHPACK_POLLING=true
     tty: true
