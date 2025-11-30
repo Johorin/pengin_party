@@ -6,4 +6,7 @@ WORKDIR /app
 # RUN npm install --save react@18.3.0 react-dom@18.3.0
 # RUN npm install --save next@14.2.3
 
-CMD ["sh", "-c", "npm install"]
+COPY ./frontend/my-app/package.json /app
+COPY ./frontend/my-app/package-lock.json /app
+
+CMD ["sh", "-c", "npm install && npm run dev"]

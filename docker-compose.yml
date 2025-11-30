@@ -25,12 +25,25 @@ services:
       - ./backend:/go/pengin_party
     environment:
       - WATCHPACK_POLLING=true
-    # stdin_open: true
-    # tty: true
+    stdin_open: true
+    tty: true
     ports:
       - "4000:4000"
     # networks:
     #   - pengin_party
+
+  mysql-db:
+    container_name: mysql-db
+    image: mysql:latest
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+
+volumes:
+  mysql_data:
 
 # networks:
 #   pengin_party:
