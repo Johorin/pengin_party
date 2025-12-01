@@ -34,7 +34,7 @@ services:
 
   mysql-db:
     container_name: mysql-db
-    image: mysql:latest
+    image: mysql:9.5.0
     volumes:
       - mysql_data:/var/lib/mysql
     ports:

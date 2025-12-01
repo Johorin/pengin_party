@@ -1,10 +1,8 @@
-FROM node:latest
+FROM node:25-alpine
 
 WORKDIR /app
 
 COPY ./websocket/package.json /app
 COPY ./websocket/package-lock.json /app
 
-RUN npm install
-
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "npm install && node server.js"]
