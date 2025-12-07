@@ -44,6 +44,16 @@ services:
     networks:
       - pengin_party
 
+  redis:
+    image: redis:8.4.0
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - pengin_party
+    volumes:
+      - redis_data:/data
+
   websocket-server:
     container_name: websocket-server
     build:
@@ -63,6 +73,7 @@ services:
 
 volumes:
   mysql_data:
+  redis_data:
 
 networks:
   pengin_party:
