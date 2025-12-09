@@ -8,12 +8,14 @@ import (
 
 func main() {
 	ctx := context.Background()
-	rds, err :=  redis.NewRedisClient(ctx)
+	rdb, err :=  redis.NewRedisClient(ctx)
 	if err != nil {
 		panic(err)
 	}
-	defer rds.Close()
+	defer rdb.Close()
 
 	router := gin.Default()
-	router.POST("/login", )
+	// router.POST("/login", )
+	router.POST("/users", )			// ユーザーの登録（to MySQL）
+	router.PUT("/rooms/{roomId}", )	// マッチング部屋を作成（to Redis）
 }
