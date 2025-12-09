@@ -18,6 +18,7 @@ const AuthComponent = () => {
       if (authUser) {
         // ログインしている場合
         setUser(authUser);
+        console.log('ログイン中、ログインユーザー：', authUser);
       } else {
         // ログアウトしている場合
         setUser(null);
