@@ -10,6 +10,7 @@ import (
 	"pengin_party/internal/presentation/controllers"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	// "pengin_party/di"
 )
 
@@ -17,6 +18,12 @@ func main() {
 	config.LoadConfig()
 	// fmt.Println(config.DB.DNS())
 	fmt.Println("APP_ENVは：" + os.Getenv("APP_ENV"))
+
+	err := godotenv.Load(".env.local")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("DB_DATABASEは：" + os.Getenv("DB_DATABASE"))
 
 	// Redisクライアントの初期化
 	ctx := context.Background()

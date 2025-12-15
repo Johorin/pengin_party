@@ -11,9 +11,9 @@ RUN go install github.com/air-verse/air@v1.63.4
 # CLI migrationツールのインストール @see: https://github.com/golang-migrate/migrate/blob/master/cmd/migrate/README.md
 RUN go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.19.1
 
-ENV GIN_MODE-debug
+ENV GIN_MODE=debug
 ENV APP_ENV=local
 ENV TZ="Asia/Tokyo"
 
-# 対話セッションを維持するためにシェルを起動
-CMD ["sh"]
+# 自動ビルド＆ホットリロード起動
+CMD ["air", "-c", ".air.toml"]
