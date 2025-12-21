@@ -8,6 +8,7 @@ import (
 	"pengin_party/internal/application/usecases/user/usecase"
 	"pengin_party/internal/infrastructure/redis"
 	"pengin_party/internal/presentation/controllers"
+	"pengin_party/internal/infrastructure/repository"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -33,9 +34,15 @@ func main() {
 	}
 	defer rdb.Close()
 
-	user_uc   := usecase.NewCreateUserUseCase()
+	// MySQLクライアントの初期化（gorm）
+	dbInterface, err := repository.Init()
+	if err != nil {
+		panic(err)
+	}
+
+	user_repo := repository.NewUserRepository(dbInterface)
+	user_uc   := usecase.NewCreateUserUseCase(user_repo)
 	user_con  := controllers.NewUserController(user_uc)
-	// user_repo := 
 
 	router := gin.Default()
 	// router.POST("/login", )

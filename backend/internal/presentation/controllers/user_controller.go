@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	// "github.com/redis/go-redis/v9"
+	"pengin_party/pkg/types"
 )
 
 type UserController interface {
@@ -25,14 +26,13 @@ func NewUserController(
 }
 
 func (uc *userController) Create(c *gin.Context) {
-	var req struct {
-		UserID   string `json:"user_id"`
-		UserUUID string `json:"user_uuid"`
-	}
+	var req types.LoginUser
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	uc.createUserUseCase.Execute(c.Request.Context(), req.Name, req.Email, req.UID, req.UUID)
 
 	c.JSON(http.StatusOK, UserApiResponse{
 		Data: UserResponse{

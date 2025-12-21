@@ -1,22 +1,58 @@
 package usecase
 
-import "context"
+import (
+	"context"
+	"pengin_party/pkg/types"
+	"pengin_party/internal/domain/user"
+	"pengin_party/internal/infrastructure/repository"
 
-type CreateUserUseCase struct {}
+	"github.com/cockroachdb/errors"
+	"gorm.io/gorm"
+)
 
-func NewCreateUserUseCase() *CreateUserUseCase {
-	return &CreateUserUseCase{}
+const CreateUserUseCaseMessage = "ユーザーの作成に成功しました"
+
+type CreateUserUseCase struct {
+	db       repository.DBInterface
+	userRepo user.UserRepository
 }
 
-func (u *CreateUserUseCase) Execute(ctx context.Context, user UserInfo) (*CreateUserResponse, error) {
-	// TODO: repository処理、usersテーブルに対してInsert
+func NewCreateUserUseCase(
+	db repository.DBInterface,
+	userRepo user.UserRepository,
+) *CreateUserUseCase {
+	return &CreateUserUseCase{
+		db:       db,
+		userRepo: userRepo,
+	}
+}
 
-	return &CreateUserResponse{
-		Data: CreateUserResponseData{
-			ID: 1,
-			UID: 11,
-			UUID: 111,
-			Name: "yuya",
-		},
+func (uc *CreateUserUseCase) Execute(
+	ctx context.Context,
+	name, email, uid, uuid string,
+) (*types.MessageOnlyResponse, error) {
+	// TODO: repository処理、usersテーブルに対してInsert
+	// Userエンティティの作成
+	userEntity, err := user.NewUserEntity(
+		name,
+		email,
+		uid,
+		uuid,
+	)
+	if err != nil {
+		return nil, errors.Wrap(err, "ユーザーエンティティの作成に失敗しました")
+	}
+
+	if err := uc.db.Transaction(ctx, func(tx *gorm.DB) error {
+		if _, err := uc.userRepo.Create(ctx, userEntity); err != nil {
+			return errors.Wrap(err, "ユーザーの作成に失敗しました")
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return &types.MessageOnlyResponse{
+		Message: CreateUserUseCaseMessage,
 	}, nil
 }
