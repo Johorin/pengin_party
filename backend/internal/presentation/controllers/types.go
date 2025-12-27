@@ -19,3 +19,11 @@ type UserResponse struct {
 type UserApiResponse struct {
 	Data UserResponse `json:"data"`
 }
+
+type CreateUserResponse struct {
+	ID *uint `json:"id"`
+}
+
+type CreateUserApiResponse struct {
+	Data CreateUserResponse `json:"data"`
+}

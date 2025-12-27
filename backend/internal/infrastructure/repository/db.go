@@ -62,12 +62,12 @@ func Init() (DBInterface, error) {
 	}
 	db, err := gorm.Open(mysql.Open(dns), &c)
 	if err != nil {
-		return nil, fmt.Errorf("データベースの接続に失敗しました。: %w", err)
+		return nil, fmt.Errorf("データベースの接続に失敗しました。（gorm.Open）: %w", err)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		return nil, fmt.Errorf("データベースの接続に失敗しました。: %w", err)
+		return nil, fmt.Errorf("データベースの接続に失敗しました。（db.DB）: %w", err)
 	}
 
 	sqlDB.SetMaxOpenConns(MAX_OPEN_CONNS)

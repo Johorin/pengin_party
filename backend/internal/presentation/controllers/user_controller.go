@@ -32,14 +32,14 @@ func (uc *userController) Create(c *gin.Context) {
 		return
 	}
 
-	uc.createUserUseCase.Execute(c.Request.Context(), req.Name, req.Email, req.UID, req.UUID)
+	userId, err := uc.createUserUseCase.Execute(c.Request.Context(), req.Name, req.Email, req.UID, req.UUID)
+	if err != nil {
+		panic("ユーザー作成ユースケースの実行に失敗しました。")
+	}
 
-	c.JSON(http.StatusOK, UserApiResponse{
-		Data: UserResponse{
-			ID: 1,
-			UID: 11,
-			UUID: 111,
-			Name: "yuya",
+	c.JSON(http.StatusOK, CreateUserApiResponse{
+		Data: CreateUserResponse{
+			ID: userId,
 		},
 	})
 }

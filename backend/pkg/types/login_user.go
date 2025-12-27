@@ -6,3 +6,7 @@ type LoginUser struct {
 	UID   string `json:"uid"`
 	UUID  string `json:"uuid"`
 }
+
+type UserIDResponse struct {
+	UserID *uint `json:"user_id"`
+}

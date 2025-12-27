@@ -16,11 +16,11 @@ import (
 )
 
 func main() {
+	err := godotenv.Load(".env.local")
 	config.LoadConfig()
 	// fmt.Println(config.DB.DNS())
 	fmt.Println("APP_ENVは：" + os.Getenv("APP_ENV"))
 
-	err := godotenv.Load(".env.local")
 	if err != nil {
 		panic(err)
 	}
@@ -41,11 +41,13 @@ func main() {
 	}
 
 	user_repo := repository.NewUserRepository(dbInterface)
-	user_uc   := usecase.NewCreateUserUseCase(user_repo)
+	user_uc   := usecase.NewCreateUserUseCase(dbInterface, user_repo)
 	user_con  := controllers.NewUserController(user_uc)
 
 	router := gin.Default()
 	// router.POST("/login", )
 	router.POST("/users", user_con.Create)			// ユーザーの登録（to MySQL）
 	// router.PUT("/rooms/{roomId}", )	// マッチング部屋を作成（to Redis）
+
+	router.Run(":4000")
 }

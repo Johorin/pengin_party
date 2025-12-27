@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"pengin_party/pkg/types"
 	"pengin_party/internal/domain/user"
 	"pengin_party/internal/infrastructure/repository"
 
@@ -30,8 +29,7 @@ func NewCreateUserUseCase(
 func (uc *CreateUserUseCase) Execute(
 	ctx context.Context,
 	name, email, uid, uuid string,
-) (*types.MessageOnlyResponse, error) {
-	// TODO: repository処理、usersテーブルに対してInsert
+) (*uint, error) {
 	// Userエンティティの作成
 	userEntity, err := user.NewUserEntity(
 		name,
@@ -43,8 +41,11 @@ func (uc *CreateUserUseCase) Execute(
 		return nil, errors.Wrap(err, "ユーザーエンティティの作成に失敗しました")
 	}
 
+	var userId *uint
 	if err := uc.db.Transaction(ctx, func(tx *gorm.DB) error {
-		if _, err := uc.userRepo.Create(ctx, userEntity); err != nil {
+		var err error
+		userId, err = uc.userRepo.Create(ctx, userEntity)
+		if err != nil {
 			return errors.Wrap(err, "ユーザーの作成に失敗しました")
 		}
 		return nil
@@ -52,7 +53,5 @@ func (uc *CreateUserUseCase) Execute(
 		return nil, err
 	}
 
-	return &types.MessageOnlyResponse{
-		Message: CreateUserUseCaseMessage,
-	}, nil
+	return userId, nil
 }
