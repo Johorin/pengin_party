@@ -12,6 +12,9 @@ const AuthComponent = () => {
   const [signingIn, setSigningIn] = useState(false); // ログイン処理中
   const [error, setError] = useState<string | null>(null); // エラー状態
 
+  const currentUser = auth.currentUser;
+  console.log(currentUser);
+
   // ログイン状態の監視
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
