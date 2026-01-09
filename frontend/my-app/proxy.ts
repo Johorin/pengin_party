@@ -1,8 +1,7 @@
 // route page.tsが呼ばれる前に実行されるミドルウェア
 
-import "@/infrastructure/firebase.ts"
 import { NextResponse, NextRequest } from 'next/server'
- 
+
 // This function can be marked `async` if using `await` inside
 export function proxy(request: NextRequest) {
     console.log("middleware test");
