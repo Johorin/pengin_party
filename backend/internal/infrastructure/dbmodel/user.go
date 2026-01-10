@@ -5,7 +5,7 @@ import "time"
 type User struct {
 	ID        uint      `gorm:"column:id"`
 	Name      string    `gorm:"column:name"`
-	Email     string    `gorm:"column:email"`
+	Email     string    `gorm:"column:email;uniqueIndex"`
 	UID       string    `gorm:"column:uid"`
 	UUID      string    `gorm:"column:uuid"`
 	CreatedAt time.Time `gorm:"column:created_at"`
