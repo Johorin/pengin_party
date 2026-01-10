@@ -7,9 +7,11 @@ import (
 	"pengin_party/config"
 	"pengin_party/internal/application/usecases/user/usecase"
 	"pengin_party/internal/infrastructure/redis"
-	"pengin_party/internal/presentation/controllers"
 	"pengin_party/internal/infrastructure/repository"
+	"pengin_party/internal/presentation/controllers"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	// "pengin_party/di"
@@ -28,7 +30,7 @@ func main() {
 
 	// Redisクライアントの初期化
 	ctx := context.Background()
-	rdb, err :=  redis.NewRedisClient(ctx)
+	rdb, err := redis.NewRedisClient(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -41,14 +43,25 @@ func main() {
 	}
 
 	user_repo := repository.NewUserRepository(dbInterface)
-	nuseruc   := usecase.NewCreateUserUseCase(dbInterface, user_repo)
-	iuseruc   := usecase.NewIsExistUserUseCase(dbInterface, user_repo)
-	user_con  := controllers.NewUserController(nuseruc, iuseruc)
+	nuseruc := usecase.NewCreateUserUseCase(dbInterface, user_repo)
+	iuseruc := usecase.NewIsExistUserUseCase(dbInterface, user_repo)
+	user_con := controllers.NewUserController(nuseruc, iuseruc)
 
 	router := gin.Default()
+
+	// CORS設定
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{os.Getenv("FRONTEND_URL")},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "accept", "origin", "Cache-Control", "X-Requested-With"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
 	// router.POST("/login", )
-	router.POST("/users", user_con.Create)		// ユーザーの登録（to MySQL）
-	router.GET("/users/:uid", user_con.IsExist)	// ユーザーの存在確認
+	router.POST("/users", user_con.Create)      // ユーザーの登録（to MySQL）
+	router.GET("/users/:uid", user_con.IsExist) // ユーザーの存在確認
 	// router.PUT("/rooms/{roomId}", )	// マッチング部屋を作成（to Redis）
 
 	router.Run(":4000")
