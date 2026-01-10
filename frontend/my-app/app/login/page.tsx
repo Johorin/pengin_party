@@ -22,8 +22,7 @@ const Login = () => {
         setUser(authUser);
         console.log('ログイン中、ログインユーザー：', authUser);
         async function createUser() {
-          const res = await fetch(process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + '/users')
-          await fetch(process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + '/users', {
+          const res = await fetch(process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + '/users', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -36,7 +35,7 @@ const Login = () => {
           })
           
           const data = await res.json()
-          console.log(data);
+          console.log("fetch POST /users: ", data);
         }
         createUser();
       } else {
