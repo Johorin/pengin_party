@@ -21,6 +21,24 @@ const Login = () => {
         // ログインしている場合
         setUser(authUser);
         console.log('ログイン中、ログインユーザー：', authUser);
+        async function createUser() {
+          const res = await fetch(process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + '/users')
+          await fetch(process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + '/users', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              "name": authUser?.displayName,
+              "email": authUser?.email,
+              "uid": authUser?.uid
+          }),
+          })
+          
+          const data = await res.json()
+          console.log(data);
+        }
+        createUser();
       } else {
         // ログアウトしている場合
         setUser(null);
