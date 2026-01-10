@@ -4,3 +4,6 @@ ENV MYSQL_ROOT_PASSWORD="rootpassword"
 ENV MYSQL_DATABASE="pengin_party"
 ENV MYSQL_USER="user"
 ENV MYSQL_PASSWORD="hogehoge"
+
+# MySQL設定ファイルをコピー
+COPY my.cnf /etc/mysql/conf.d/
