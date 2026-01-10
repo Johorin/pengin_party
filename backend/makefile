@@ -12,7 +12,10 @@ migrate-up:
 
 # マイグレーションをdown
 migrate-down:
-	docker compose exec backend migrate -path db/migrations -database "mysql://user:hogehoge@tcp(db)/pengin_party" down
+	yes | docker compose exec -T backend migrate -path db/migrations -database "mysql://user:hogehoge@tcp(db)/pengin_party" down
+
+# マイグレーションをdownしてからup（リセット）
+migrate-reset: migrate-down migrate-up
 
 # マイグレーション状態をクリア（schema_migrationsテーブルのレコードを削除）
 migrate-clear:

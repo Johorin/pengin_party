@@ -12,7 +12,6 @@ type RoomApiResponse struct {
 type UserResponse struct {
 	ID uint `json:"id"`
 	UID uint `json:"uid"`
-	UUID uint `json:"uuid"`
 	Name string `json:"name"`
 }
 

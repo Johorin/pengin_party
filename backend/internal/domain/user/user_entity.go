@@ -10,7 +10,6 @@ type UserEntity struct {
 	name  string
 	email user.Email
 	uid   string
-	uuid  string
 }
 
 // Getters
@@ -18,10 +17,9 @@ func (u *UserEntity) ID()    *uint      { return u.id }
 func (u *UserEntity) Name()  string     { return u.name }
 func (u *UserEntity) Email() user.Email { return u.email }
 func (u *UserEntity) UID()   string     { return u.uid }
-func (u *UserEntity) UUID()  string     { return u.uuid }
 
 func NewUserEntity(
-	name, email, uid, uuid string,
+	name, email, uid string,
 ) (*UserEntity, error) {
 	emailVO, err := user.NewEmail(email)
 	if err != nil {
@@ -33,7 +31,6 @@ func NewUserEntity(
 		name: name,
 		email: emailVO,
 		uid: uid,
-		uuid: uuid,
 	}, nil
 }
 
@@ -53,7 +50,6 @@ func NewUserEntity(
 // 	name string,
 // 	email string,
 // 	uid string,
-// 	uuid string,
 // ) { 
 // 	//
 // }

@@ -37,7 +37,7 @@ func (uc *userController) Create(c *gin.Context) {
 		return
 	}
 
-	userId, err := uc.createUserUseCase.Execute(c.Request.Context(), req.Name, req.Email, req.UID, req.UUID)
+	userId, err := uc.createUserUseCase.Execute(c.Request.Context(), req.Name, req.Email, req.UID)
 	if err != nil {
 		// ユーザーが既に登録済みならIDはnilを返す
 		if user.IsErrUserAlreadyExists(err) {
