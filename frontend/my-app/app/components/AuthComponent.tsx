@@ -13,7 +13,7 @@ const AuthComponent = () => {
   const [error, setError] = useState<string | null>(null); // エラー状態
 
   const currentUser = auth.currentUser;
-  console.log(currentUser);
+  console.log("currentUser: ", currentUser);
 
   // ログイン状態の監視
   useEffect(() => {
