@@ -26,5 +26,5 @@ func LoadDB() {
 }
 
 func (d *db) DNS() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", d.user, d.password, d.host, d.port, d.database)
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci", d.user, d.password, d.host, d.port, d.database)
 }

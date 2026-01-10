@@ -4,6 +4,7 @@ go 1.25.4
 
 require (
 	github.com/cockroachdb/errors v1.12.0
+	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.11.0
 	github.com/google/wire v0.7.0
 	github.com/joho/godotenv v1.5.1
