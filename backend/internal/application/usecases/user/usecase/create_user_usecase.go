@@ -44,7 +44,7 @@ func (uc *CreateUserUseCase) Execute(
 	var userId *uint
 	if err := uc.db.Transaction(ctx, func(tx *gorm.DB) error {
 		var err error
-		userId, err = uc.userRepo.Create(ctx, userEntity)
+		userId, err = uc.userRepo.CreateUserIfNotExists(ctx, userEntity)
 		if err != nil {
 			return errors.Wrap(err, "ユーザーの作成に失敗しました")
 		}

@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"pengin_party/internal/application/usecases/user/usecase"
+	"pengin_party/internal/domain/user"
 
 	"github.com/gin-gonic/gin"
 	// "github.com/redis/go-redis/v9"
@@ -15,7 +16,7 @@ type UserController interface {
 }
 
 type userController struct {
-	createUserUseCase *usecase.CreateUserUseCase
+	createUserUseCase  *usecase.CreateUserUseCase
 	isExistUserUseCase *usecase.IsExistUserUseCase
 }
 
@@ -38,7 +39,17 @@ func (uc *userController) Create(c *gin.Context) {
 
 	userId, err := uc.createUserUseCase.Execute(c.Request.Context(), req.Name, req.Email, req.UID, req.UUID)
 	if err != nil {
-		panic("ユーザー作成ユースケースの実行に失敗しました。")
+		// ユーザーが既に登録済みならIDはnilを返す
+		if user.IsErrUserAlreadyExists(err) {
+			c.JSON(http.StatusOK, CreateUserApiResponse{
+				Data: CreateUserResponse{
+					ID: nil,
+				},
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ユーザー作成ユースケースの実行に失敗しました"})
+		return
 	}
 
 	c.JSON(http.StatusOK, CreateUserApiResponse{

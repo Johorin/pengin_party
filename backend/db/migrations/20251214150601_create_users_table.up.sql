@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT 'ID',
     name VARCHAR(255) NOT NULL COMMENT 'ユーザー名',
-    email VARCHAR(255) NOT NULL COMMENT 'メールアドレス',
+    email VARCHAR(255) NOT NULL UNIQUE COMMENT 'メールアドレス',
     uid VARCHAR(255) NOT NULL COMMENT 'Firebaseから返ってくるユーザーuid',
     uuid VARCHAR(255) NOT NULL COMMENT 'Firebaseから返ってくるユーザーuuid',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
