@@ -28,14 +28,13 @@ func NewCreateUserUseCase(
 
 func (uc *CreateUserUseCase) Execute(
 	ctx context.Context,
-	name, email, uid, uuid string,
+	name, email, uid string,
 ) (*uint, error) {
 	// Userエンティティの作成
 	userEntity, err := user.NewUserEntity(
 		name,
 		email,
 		uid,
-		uuid,
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "ユーザーエンティティの作成に失敗しました")

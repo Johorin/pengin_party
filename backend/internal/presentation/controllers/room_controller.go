@@ -8,7 +8,6 @@ package controllers
 // func RoomController(c *gin.Context, rdb *RedisClient) {
 // 	var req struct {
 // 		UserID string   `json:"user_id`
-// 		UserUUID string `json:"user_uuid"`
 // 	}
 // 	roomId := c.Param("roomId")
 // 	c.ShouldBindJSON(&req)

@@ -56,6 +56,5 @@ func (r *userRepository) toModel(entity *user.UserEntity) *dbmodel.User {
 		Name:  entity.Name(),
 		Email: entity.Email().Value(),
 		UID:   entity.UID(),
-		UUID:  entity.UUID(),
 	}
 }
