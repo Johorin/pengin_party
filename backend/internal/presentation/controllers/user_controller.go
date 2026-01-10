@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"pengin_party/internal/application/usecases/user/usecase"
+	"pengin_party/internal/domain/user"
 
 	"github.com/gin-gonic/gin"
 	// "github.com/redis/go-redis/v9"
@@ -11,17 +12,21 @@ import (
 
 type UserController interface {
 	Create(c *gin.Context)
+	IsExist(c *gin.Context)
 }
 
 type userController struct {
-	createUserUseCase *usecase.CreateUserUseCase
+	createUserUseCase  *usecase.CreateUserUseCase
+	isExistUserUseCase *usecase.IsExistUserUseCase
 }
 
 func NewUserController(
 	createUserUseCase *usecase.CreateUserUseCase,
+	isExistUserUseCase *usecase.IsExistUserUseCase,
 ) UserController {
 	return &userController{
 		createUserUseCase,
+		isExistUserUseCase,
 	}
 }
 
@@ -34,12 +39,41 @@ func (uc *userController) Create(c *gin.Context) {
 
 	userId, err := uc.createUserUseCase.Execute(c.Request.Context(), req.Name, req.Email, req.UID, req.UUID)
 	if err != nil {
-		panic("ユーザー作成ユースケースの実行に失敗しました。")
+		// ユーザーが既に登録済みならIDはnilを返す
+		if user.IsErrUserAlreadyExists(err) {
+			c.JSON(http.StatusOK, CreateUserApiResponse{
+				Data: CreateUserResponse{
+					ID: nil,
+				},
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ユーザー作成ユースケースの実行に失敗しました"})
+		return
 	}
 
 	c.JSON(http.StatusOK, CreateUserApiResponse{
 		Data: CreateUserResponse{
 			ID: userId,
+		},
+	})
+}
+
+func (uc *userController) IsExist(c *gin.Context) {
+	// var req types.LoginUser
+	// if err := c.ShouldBindJSON(&req); err != nil {
+	// 	panic("リクエストのフォーマットが違います")
+	// }
+	uid := c.Param("uid")
+
+	isExist, err := uc.isExistUserUseCase.Execute(c.Request.Context(), uid)
+	if err != nil {
+		panic("")
+	}
+
+	c.JSON(http.StatusOK, SearchUserApiResponse{
+		Data: SearchUserResponse{
+			IsExist: isExist,
 		},
 	})
 }

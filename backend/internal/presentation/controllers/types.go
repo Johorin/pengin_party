@@ -24,6 +24,14 @@ type CreateUserResponse struct {
 	ID *uint `json:"id"`
 }
 
+type SearchUserResponse struct {
+	IsExist bool `json:"is_exist"`
+}
+
 type CreateUserApiResponse struct {
 	Data CreateUserResponse `json:"data"`
+}
+
+type SearchUserApiResponse struct {
+	Data SearchUserResponse `json:"data"`
 }

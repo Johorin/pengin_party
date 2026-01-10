@@ -41,12 +41,14 @@ func main() {
 	}
 
 	user_repo := repository.NewUserRepository(dbInterface)
-	user_uc   := usecase.NewCreateUserUseCase(dbInterface, user_repo)
-	user_con  := controllers.NewUserController(user_uc)
+	nuseruc   := usecase.NewCreateUserUseCase(dbInterface, user_repo)
+	iuseruc   := usecase.NewIsExistUserUseCase(dbInterface, user_repo)
+	user_con  := controllers.NewUserController(nuseruc, iuseruc)
 
 	router := gin.Default()
 	// router.POST("/login", )
-	router.POST("/users", user_con.Create)			// ユーザーの登録（to MySQL）
+	router.POST("/users", user_con.Create)		// ユーザーの登録（to MySQL）
+	router.GET("/users/:uid", user_con.IsExist)	// ユーザーの存在確認
 	// router.PUT("/rooms/{roomId}", )	// マッチング部屋を作成（to Redis）
 
 	router.Run(":4000")

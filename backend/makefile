@@ -10,6 +10,10 @@ create-migration:
 migrate-up:
 	docker compose exec backend migrate -path db/migrations -database "mysql://user:hogehoge@tcp(db)/pengin_party" up
 
+# マイグレーションをdown
+migrate-down:
+	docker compose exec backend migrate -path db/migrations -database "mysql://user:hogehoge@tcp(db)/pengin_party" down
+
 # マイグレーション状態をクリア（schema_migrationsテーブルのレコードを削除）
 migrate-clear:
 	docker compose exec mysql-db mysql -u user -phogehoge pengin_party -e "DELETE FROM schema_migrations;"
