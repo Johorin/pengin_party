@@ -9,27 +9,43 @@ package di
 import (
 	"github.com/google/wire"
 	"pengin_party/internal/application/usecases/user/usecase"
+	"pengin_party/internal/infrastructure/redis"
+	"pengin_party/internal/infrastructure/repository"
 	"pengin_party/internal/presentation/controllers"
 )
 
 // Injectors from wire.go:
 
 func InitializeControllers() (*ControllerSet, error) {
-	createUserUseCase := usecase.NewCreateUserUseCase()
-	userController := controllers.NewUserController(createUserUseCase)
-	serverController := controllers.NewServerController(userController)
-	controllerSet := &ControllerSet{
-		ServerController: serverController,
+	dbInterface, err := repository.Init()
+	if err != nil {
+		return nil, err
 	}
-	return controllerSet, nil
+	userRepository := repository.NewUserRepository(dbInterface)
+	createUserUseCase := usecase.NewCreateUserUseCase(dbInterface, userRepository)
+	isExistUserUseCase := usecase.NewIsExistUserUseCase(dbInterface, userRepository)
+	userController := controllers.NewUserController(createUserUseCase, isExistUserUseCase)
+	serverController := controllers.NewServerController(userController)
+	diControllerSet := &ControllerSet{
+		ServerController: serverController,
+		DB:               dbInterface,
+	}
+	return diControllerSet, nil
 }
 
 // wire.go:
 
-var useCaseSet = wire.NewSet(usecase.NewCreateUserUseCase)
+var infrastructureSet = wire.NewSet(repository.Init, redis.NewRedisClient)
 
-var serverControllerSet = wire.NewSet(controllers.NewUserController, controllers.NewServerController)
+var repositorySet = wire.NewSet(repository.NewUserRepository)
+
+var useCaseSet = wire.NewSet(usecase.NewCreateUserUseCase, usecase.NewIsExistUserUseCase)
+
+var controllerSet = wire.NewSet(controllers.NewUserController)
+
+var serverControllerSet = wire.NewSet(controllers.NewServerController)
 
 type ControllerSet struct {
 	ServerController *controllers.ServerController
+	DB               repository.DBInterface
 }

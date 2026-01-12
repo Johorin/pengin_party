@@ -20,3 +20,6 @@ migrate-reset: migrate-down migrate-up
 # マイグレーション状態をクリア（schema_migrationsテーブルのレコードを削除）
 migrate-clear:
 	docker compose exec mysql-db mysql -u user -phogehoge pengin_party -e "DELETE FROM schema_migrations;"
+
+wire-gen:
+	docker compose exec backend wire gen ./di/wire.go

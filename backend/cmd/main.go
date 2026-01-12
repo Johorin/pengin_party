@@ -4,17 +4,14 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"pengin_party/config"
-	"pengin_party/internal/application/usecases/user/usecase"
-	"pengin_party/internal/infrastructure/redis"
-	"pengin_party/internal/infrastructure/repository"
-	"pengin_party/internal/presentation/controllers"
 	"time"
+	"pengin_party/config"
+	"pengin_party/di"
+	"pengin_party/internal/infrastructure/redis"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	// "pengin_party/di"
 )
 
 func main() {
@@ -28,6 +25,12 @@ func main() {
 	}
 	fmt.Println("DB_DATABASEは：" + os.Getenv("DB_DATABASE"))
 
+	con, err := di.InitializeControllers()
+	if err != nil {
+		panic("DIの初期化に失敗しました。")
+	}
+	scon := con.ServerController
+
 	// Redisクライアントの初期化
 	ctx := context.Background()
 	rdb, err := redis.NewRedisClient(ctx)
@@ -35,17 +38,7 @@ func main() {
 		panic(err)
 	}
 	defer rdb.Close()
-
-	// MySQLクライアントの初期化（gorm）
-	dbInterface, err := repository.Init()
-	if err != nil {
-		panic(err)
-	}
-
-	user_repo := repository.NewUserRepository(dbInterface)
-	nuseruc := usecase.NewCreateUserUseCase(dbInterface, user_repo)
-	iuseruc := usecase.NewIsExistUserUseCase(dbInterface, user_repo)
-	user_con := controllers.NewUserController(nuseruc, iuseruc)
+	defer con.DB.Close()
 
 	router := gin.Default()
 
@@ -60,8 +53,8 @@ func main() {
 	}))
 
 	// router.POST("/login", )
-	router.POST("/users", user_con.Create)      // ユーザーの登録（to MySQL）
-	router.GET("/users/:uid", user_con.IsExist) // ユーザーの存在確認
+	router.POST("/users", scon.UserController.Create)      // ユーザーの登録（to MySQL）
+	router.GET("/users/:uid", scon.UserController.IsExist) // ユーザーの存在確認
 	// router.PUT("/rooms/{roomId}", )	// マッチング部屋を作成（to Redis）
 
 	router.Run(":4000")
