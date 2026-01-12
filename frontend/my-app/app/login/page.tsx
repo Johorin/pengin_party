@@ -36,6 +36,8 @@ const Login = () => {
           
           const data = await res.json()
           console.log("fetch POST /users: ", data);
+          const idToken = await authUser?.getIdToken(); // Firebase IDトークン＝accessTokenだった
+          console.log("idToken: ", idToken);
         }
         createUser();
       } else {
