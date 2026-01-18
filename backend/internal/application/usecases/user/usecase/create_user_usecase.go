@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 	"pengin_party/internal/domain/user"
-	"pengin_party/internal/infrastructure/repository"
+	"pengin_party/internal/infrastructure/repositories/rdb"
 
 	"github.com/cockroachdb/errors"
 	"gorm.io/gorm"
@@ -12,12 +12,12 @@ import (
 const CreateUserUseCaseMessage = "ユーザーの作成に成功しました"
 
 type CreateUserUseCase struct {
-	db       repository.DBInterface
+	db       rdb.DBInterface
 	userRepo user.UserRepository
 }
 
 func NewCreateUserUseCase(
-	db repository.DBInterface,
+	db rdb.DBInterface,
 	userRepo user.UserRepository,
 ) *CreateUserUseCase {
 	return &CreateUserUseCase{

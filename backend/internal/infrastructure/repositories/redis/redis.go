@@ -7,12 +7,19 @@ import (
     "github.com/redis/go-redis/v9"
 )
 
+type RedisInterface interface {
+    GetRedis() *redis.Client
+    Close()    error
+}
+
 type RedisClient struct {
     client *redis.Client
     ctx    context.Context
 }
 
-func NewRedisClient(ctx context.Context) (*RedisClient, error) {
+func Init() (RedisInterface, error) {
+    ctx := context.Background()
+
     // クライアントの初期化
     client := redis.NewClient(&redis.Options{
         Addr:         "redis:6379",
@@ -32,11 +39,14 @@ func NewRedisClient(ctx context.Context) (*RedisClient, error) {
 
     return &RedisClient{
         client: client,
-        ctx:    ctx,
+        // ctx:    ctx,
     }, nil
 }
 
-// クライアントのクローズ処理
+func (rc *RedisClient) GetRedis() *redis.Client {
+    return rc.client
+}
+
 func (rc *RedisClient) Close() error {
     return rc.client.Close()
 }

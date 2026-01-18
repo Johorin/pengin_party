@@ -23,12 +23,20 @@ type CreateUserResponse struct {
 	ID *uint `json:"id"`
 }
 
+type CreateRoomResponse struct {
+	RoomID *string `json:"room_id"`
+}
+
 type SearchUserResponse struct {
 	IsExist bool `json:"is_exist"`
 }
 
 type CreateUserApiResponse struct {
 	Data CreateUserResponse `json:"data"`
+}
+
+type CreateRoomApiResponse struct {
+	Data CreateRoomResponse `json:"data"`
 }
 
 type SearchUserApiResponse struct {

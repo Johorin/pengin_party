@@ -1,13 +1,16 @@
 package controllers
 
 type ServerController struct {
-	userController UserController
+	UserController UserController
+	RoomController RoomController
 }
 
 func NewServerController(
 	userController UserController,
+	roomController RoomController,
 ) *ServerController {
 	return &ServerController{
-		userController: userController,
+		UserController: userController,
+		RoomController: roomController,
 	}
 }

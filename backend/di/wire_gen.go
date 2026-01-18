@@ -8,28 +8,58 @@ package di
 
 import (
 	"github.com/google/wire"
+	usecase2 "pengin_party/internal/application/usecases/room/usecase"
 	"pengin_party/internal/application/usecases/user/usecase"
+	"pengin_party/internal/infrastructure/repositories/rdb"
+	"pengin_party/internal/infrastructure/repositories/rdb/repository"
+	"pengin_party/internal/infrastructure/repositories/redis"
+	repository2 "pengin_party/internal/infrastructure/repositories/redis/repository"
 	"pengin_party/internal/presentation/controllers"
 )
 
 // Injectors from wire.go:
 
 func InitializeControllers() (*ControllerSet, error) {
-	createUserUseCase := usecase.NewCreateUserUseCase()
-	userController := controllers.NewUserController(createUserUseCase)
-	serverController := controllers.NewServerController(userController)
-	controllerSet := &ControllerSet{
-		ServerController: serverController,
+	dbInterface, err := rdb.Init()
+	if err != nil {
+		return nil, err
 	}
-	return controllerSet, nil
+	userRepository := repository.NewUserRepository(dbInterface)
+	createUserUseCase := usecase.NewCreateUserUseCase(dbInterface, userRepository)
+	isExistUserUseCase := usecase.NewIsExistUserUseCase(dbInterface, userRepository)
+	userController := controllers.NewUserController(createUserUseCase, isExistUserUseCase)
+	redisInterface, err := redis.Init()
+	if err != nil {
+		return nil, err
+	}
+	roomRepository := repository2.NewRoomRepository(redisInterface)
+	createRoomUseCase := usecase2.NewCreateRoomUseCase(redisInterface, roomRepository)
+	roomController := controllers.NewRoomController(createRoomUseCase)
+	serverController := controllers.NewServerController(userController, roomController)
+	diControllerSet := &ControllerSet{
+		ServerController: serverController,
+		DB:               dbInterface,
+		Redis:            redisInterface,
+	}
+	return diControllerSet, nil
 }
 
 // wire.go:
 
-var useCaseSet = wire.NewSet(usecase.NewCreateUserUseCase)
+var infrastructureSet = wire.NewSet(rdb.Init, redis.Init)
 
-var serverControllerSet = wire.NewSet(controllers.NewUserController, controllers.NewServerController)
+var rdbRepositorySet = wire.NewSet(repository.NewUserRepository)
+
+var redisRepositorySet = wire.NewSet(repository2.NewRoomRepository)
+
+var useCaseSet = wire.NewSet(usecase.NewCreateUserUseCase, usecase.NewIsExistUserUseCase, usecase2.NewCreateRoomUseCase)
+
+var controllerSet = wire.NewSet(controllers.NewUserController, controllers.NewRoomController)
+
+var serverControllerSet = wire.NewSet(controllers.NewServerController)
 
 type ControllerSet struct {
 	ServerController *controllers.ServerController
+	DB               rdb.DBInterface
+	Redis            redis.RedisInterface
 }

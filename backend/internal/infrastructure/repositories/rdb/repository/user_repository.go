@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"pengin_party/internal/domain/user"
 	"pengin_party/internal/infrastructure/dbmodel"
+	"pengin_party/internal/infrastructure/repositories/rdb"
 
 	"github.com/cockroachdb/errors"
 	"gorm.io/gorm"
@@ -12,10 +13,10 @@ import (
 )
 
 type userRepository struct {
-	db DBInterface
+	db rdb.DBInterface
 }
 
-func NewUserRepository(db DBInterface) user.UserRepository {
+func NewUserRepository(db rdb.DBInterface) user.UserRepository {
 	return &userRepository{db}
 }
 

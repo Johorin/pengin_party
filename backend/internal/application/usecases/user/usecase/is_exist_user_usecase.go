@@ -3,16 +3,16 @@ package usecase
 import (
 	"context"
 	"pengin_party/internal/domain/user"
-	"pengin_party/internal/infrastructure/repository"
+	"pengin_party/internal/infrastructure/repositories/rdb"
 )
 
 type IsExistUserUseCase struct {
-	db       repository.DBInterface
+	db       rdb.DBInterface
 	userRepo user.UserRepository
 }
 
 func NewIsExistUserUseCase(
-	db repository.DBInterface,
+	db rdb.DBInterface,
 	userRepo user.UserRepository,
 ) *IsExistUserUseCase {
 	return &IsExistUserUseCase{
