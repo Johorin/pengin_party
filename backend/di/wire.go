@@ -4,30 +4,39 @@
 package di
 
 import (
+	roomUC "pengin_party/internal/application/usecases/room/usecase"
 	userUC "pengin_party/internal/application/usecases/user/usecase"
+	"pengin_party/internal/infrastructure/repositories/rdb"
+	rdbRepo "pengin_party/internal/infrastructure/repositories/rdb/repository"
+	"pengin_party/internal/infrastructure/repositories/redis"
+	redisRepo "pengin_party/internal/infrastructure/repositories/redis/repository"
 	"pengin_party/internal/presentation/controllers"
-	"pengin_party/internal/infrastructure/repository"
-	"pengin_party/internal/infrastructure/redis"
 
 	"github.com/google/wire"
 )
 
 var infrastructureSet = wire.NewSet(
-	repository.Init,
-	redis.NewRedisClient,
+	rdb.Init,
+	redis.Init,
 )
 
-var repositorySet = wire.NewSet(
-	repository.NewUserRepository,
+var rdbRepositorySet = wire.NewSet(
+	rdbRepo.NewUserRepository,
+)
+
+var redisRepositorySet = wire.NewSet(
+	redisRepo.NewRoomRepository,
 )
 
 var useCaseSet = wire.NewSet(
 	userUC.NewCreateUserUseCase,
 	userUC.NewIsExistUserUseCase,
+	roomUC.NewCreateRoomUseCase,
 )
 
 var controllerSet = wire.NewSet(
 	controllers.NewUserController,
+	controllers.NewRoomController,
 )
 
 var serverControllerSet = wire.NewSet(
@@ -36,14 +45,16 @@ var serverControllerSet = wire.NewSet(
 
 type ControllerSet struct {
 	ServerController *controllers.ServerController
-	DB               repository.DBInterface
+	DB               rdb.DBInterface
+	Redis            redis.RedisInterface
 	// Cache            cache.CacheRepository
 }
 
 func InitializeControllers() (*ControllerSet, error) {
 	wire.Build(
 		infrastructureSet,
-		repositorySet,
+		rdbRepositorySet,
+		redisRepositorySet,
 		useCaseSet,
 		controllerSet,
 		serverControllerSet,

@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
 	"pengin_party/config"
 	"pengin_party/di"
-	"pengin_party/internal/infrastructure/redis"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -31,13 +29,14 @@ func main() {
 	}
 	scon := con.ServerController
 
-	// Redisクライアントの初期化
-	ctx := context.Background()
-	rdb, err := redis.NewRedisClient(ctx)
-	if err != nil {
-		panic(err)
-	}
-	defer rdb.Close()
+	// // Redisクライアントの初期化
+	// ctx := context.Background()
+	// rClient, err := redis.Init(ctx)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer rClient.Close()
+	defer con.Redis.Close()
 	defer con.DB.Close()
 
 	router := gin.Default()
@@ -55,7 +54,7 @@ func main() {
 	// router.POST("/login", )
 	router.POST("/users", scon.UserController.Create)      // ユーザーの登録（to MySQL）
 	router.GET("/users/:uid", scon.UserController.IsExist) // ユーザーの存在確認
-	// router.PUT("/rooms/{roomId}", )	// マッチング部屋を作成（to Redis）
+	router.POST("/rooms", scon.RoomController.Create)	// マッチング部屋を作成（to Redis）
 
 	router.Run(":4000")
 }
