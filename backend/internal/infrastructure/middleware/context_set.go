@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"strings"
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,21 @@ func ContextSetMiddleware(app *firebase.App) gin.HandlerFunc {
 		}
 
 		// リクエストヘッダのAuthorizationからFirebaseのIDトークンを取得し、Firebase Admin SDKで検証
-		idToken := c.Request.Header.Get("Authorization")
+		authHeader := c.Request.Header.Get("Authorization")
+		if authHeader == "" {
+			c.JSON(401, gin.H{"error": "Authorization header is required"})
+			c.Abort()
+			return
+		}
+
+		// Bearerプレフィックスを除去
+		idToken := strings.TrimPrefix(authHeader, "Bearer ")
+		if idToken == authHeader {
+			c.JSON(401, gin.H{"error": "Invalid Authorization header format. Expected 'Bearer <token>'"})
+			c.Abort()
+			return
+		}
+		
 		token, err := client.VerifyIDToken(ctx, idToken)
 		if err != nil {
 			panic("error verifying ID token")
