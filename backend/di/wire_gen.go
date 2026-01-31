@@ -10,6 +10,7 @@ import (
 	"github.com/google/wire"
 	usecase2 "pengin_party/internal/application/usecases/room/usecase"
 	"pengin_party/internal/application/usecases/user/usecase"
+	"pengin_party/internal/infrastructure/firebase"
 	"pengin_party/internal/infrastructure/repositories/rdb"
 	"pengin_party/internal/infrastructure/repositories/rdb/repository"
 	"pengin_party/internal/infrastructure/repositories/redis"
@@ -36,17 +37,22 @@ func InitializeControllers() (*ControllerSet, error) {
 	createRoomUseCase := usecase2.NewCreateRoomUseCase(redisInterface, roomRepository)
 	roomController := controllers.NewRoomController(createRoomUseCase)
 	serverController := controllers.NewServerController(userController, roomController)
+	firebaseInterface, err := firebase.Init()
+	if err != nil {
+		return nil, err
+	}
 	diControllerSet := &ControllerSet{
 		ServerController: serverController,
 		DB:               dbInterface,
 		Redis:            redisInterface,
+		Firebase:         firebaseInterface,
 	}
 	return diControllerSet, nil
 }
 
 // wire.go:
 
-var infrastructureSet = wire.NewSet(rdb.Init, redis.Init)
+var infrastructureSet = wire.NewSet(rdb.Init, redis.Init, firebase.Init)
 
 var rdbRepositorySet = wire.NewSet(repository.NewUserRepository)
 
@@ -62,4 +68,5 @@ type ControllerSet struct {
 	ServerController *controllers.ServerController
 	DB               rdb.DBInterface
 	Redis            redis.RedisInterface
+	Firebase         firebase.FirebaseInterface
 }

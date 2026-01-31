@@ -10,6 +10,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"pengin_party/internal/infrastructure/middleware"
 )
 
 func main() {
@@ -28,14 +29,8 @@ func main() {
 		panic("DIの初期化に失敗しました。")
 	}
 	scon := con.ServerController
+	firebase := con.Firebase.GetFirebase()
 
-	// // Redisクライアントの初期化
-	// ctx := context.Background()
-	// rClient, err := redis.Init(ctx)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer rClient.Close()
 	defer con.Redis.Close()
 	defer con.DB.Close()
 
@@ -51,10 +46,15 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	// router.POST("/login", )
 	router.POST("/users", scon.UserController.Create)      // ユーザーの登録（to MySQL）
 	router.GET("/users/:uid", scon.UserController.IsExist) // ユーザーの存在確認
-	router.POST("/rooms", scon.RoomController.Create)	// マッチング部屋を作成（to Redis）
+
+	// 認証が必要なエンドポイントグループ
+	authenticated := router.Group("")
+	authenticated.Use(middleware.ContextSetMiddleware(firebase)) // 認証が通れば有効なIDトークンをコンテキストにセットする
+	{
+		authenticated.POST("/rooms", scon.RoomController.Create) // マッチング部屋を作成（to Redis）
+	}
 
 	router.Run(":4000")
 }

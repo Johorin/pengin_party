@@ -26,8 +26,9 @@ func NewCreateRoomUseCase(
 func (uc *CreateRoomUseCase) Execute(
 	ctx context.Context,
 	roomId *string,
+	userUid string,
 ) (*string, error) {
-	roomId, err := uc.roomRepo.CreateRoom(ctx, roomId)
+	roomId, err := uc.roomRepo.CreateRoom(ctx, roomId, userUid)
 	if err != nil {
 		return nil, errors.Wrap(err, "部屋の作成に失敗しました")
 	}

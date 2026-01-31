@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"pengin_party/internal/application/usecases/room/usecase"
+	"pengin_party/internal/infrastructure/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,11 +32,19 @@ func (r *roomController) Create(c *gin.Context) {
 		panic("リクエストボディの取得に失敗しました。")
 	}
 
-	roomId, err := r.createRoomUseCase.Execute(c.Request.Context(), req.RoomID)
+	roomId := req.RoomID
+	userUid := c.GetString(middleware.UserUID)
+	if userUid == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証が必要です"})
+		return
+	}
+
+	roomId, err := r.createRoomUseCase.Execute(c.Request.Context(), roomId, userUid)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "部屋作成ユースケースの実行に失敗しました"})
 		return
 	}
+	
 	c.JSON(http.StatusOK, CreateRoomApiResponse{
 		Data: CreateRoomResponse{
 			RoomID: roomId,

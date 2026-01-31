@@ -11,6 +11,7 @@ import (
 	"pengin_party/internal/infrastructure/repositories/redis"
 	redisRepo "pengin_party/internal/infrastructure/repositories/redis/repository"
 	"pengin_party/internal/presentation/controllers"
+	"pengin_party/internal/infrastructure/firebase"
 
 	"github.com/google/wire"
 )
@@ -18,6 +19,7 @@ import (
 var infrastructureSet = wire.NewSet(
 	rdb.Init,
 	redis.Init,
+	firebase.Init,
 )
 
 var rdbRepositorySet = wire.NewSet(
@@ -47,6 +49,7 @@ type ControllerSet struct {
 	ServerController *controllers.ServerController
 	DB               rdb.DBInterface
 	Redis            redis.RedisInterface
+	Firebase         firebase.FirebaseInterface
 	// Cache            cache.CacheRepository
 }
 
