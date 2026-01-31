@@ -74,6 +74,31 @@ services:
     networks:
       - pengin_party
 
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - pengin_party
+    depends_on:
+      - redis
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      - PMA_HOST=mysql-db
+      - PMA_PORT=3306
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-rootpassword}
+    ports:
+      - "8082:80"
+    networks:
+      - pengin_party
+    depends_on:
+      - mysql-db
+
 volumes:
   mysql_data:
   redis_data:
