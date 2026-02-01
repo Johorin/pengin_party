@@ -34,3 +34,24 @@ func (rRepo *RoomRepository) CreateRoom(ctx context.Context, roomId *string, use
 
 	return roomId, nil
 }
+
+func (rRepo *RoomRepository) JoinRoom(ctx context.Context, roomId string, userUid string) error {
+	// 部屋が存在するかチェック（room:{roomId}:hostが存在するか）
+	hostKey := "room:" + roomId + ":host"
+	exists, err := rRepo.redisClient.GetRedis().Exists(ctx, hostKey).Result()
+	if err != nil {
+		return fmt.Errorf("部屋の存在確認に失敗しました: %w", err)
+	}
+	if exists == 0 {
+		return fmt.Errorf("部屋が見つかりませんでした")
+	}
+
+	// 部屋のユーザーリストに追加（右からプッシュ）
+	usersKey := "room:" + roomId + ":users"
+	err = rRepo.redisClient.GetRedis().RPush(ctx, usersKey, userUid).Err()
+	if err != nil {
+		return fmt.Errorf("部屋への参加に失敗しました: %w", err)
+	}
+
+	return nil
+}

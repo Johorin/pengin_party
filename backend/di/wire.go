@@ -34,6 +34,7 @@ var useCaseSet = wire.NewSet(
 	userUC.NewCreateUserUseCase,
 	userUC.NewIsExistUserUseCase,
 	roomUC.NewCreateRoomUseCase,
+	roomUC.NewJoinRoomUseCase,
 )
 
 var controllerSet = wire.NewSet(

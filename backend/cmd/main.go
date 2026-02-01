@@ -3,14 +3,15 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 	"pengin_party/config"
 	"pengin_party/di"
+	"time"
+
+	"pengin_party/internal/infrastructure/middleware"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"pengin_party/internal/infrastructure/middleware"
 )
 
 func main() {
@@ -53,7 +54,8 @@ func main() {
 	authenticated := router.Group("")
 	authenticated.Use(middleware.ContextSetMiddleware(firebase)) // 認証が通れば有効なIDトークンをコンテキストにセットする
 	{
-		authenticated.POST("/rooms", scon.RoomController.Create) // マッチング部屋を作成（to Redis）
+		authenticated.POST("/rooms", scon.RoomController.Create)    // マッチング部屋を作成（to Redis）
+		authenticated.POST("/rooms/join", scon.RoomController.Join) // マッチング部屋に参加（to Redis）
 	}
 
 	router.Run(":4000")

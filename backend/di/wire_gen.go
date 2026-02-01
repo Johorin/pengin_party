@@ -35,7 +35,8 @@ func InitializeControllers() (*ControllerSet, error) {
 	}
 	roomRepository := repository2.NewRoomRepository(redisInterface)
 	createRoomUseCase := usecase2.NewCreateRoomUseCase(redisInterface, roomRepository)
-	roomController := controllers.NewRoomController(createRoomUseCase)
+	joinRoomUseCase := usecase2.NewJoinRoomUseCase(roomRepository)
+	roomController := controllers.NewRoomController(createRoomUseCase, joinRoomUseCase)
 	serverController := controllers.NewServerController(userController, roomController)
 	firebaseInterface, err := firebase.Init()
 	if err != nil {
@@ -58,7 +59,7 @@ var rdbRepositorySet = wire.NewSet(repository.NewUserRepository)
 
 var redisRepositorySet = wire.NewSet(repository2.NewRoomRepository)
 
-var useCaseSet = wire.NewSet(usecase.NewCreateUserUseCase, usecase.NewIsExistUserUseCase, usecase2.NewCreateRoomUseCase)
+var useCaseSet = wire.NewSet(usecase.NewCreateUserUseCase, usecase.NewIsExistUserUseCase, usecase2.NewCreateRoomUseCase, usecase2.NewJoinRoomUseCase)
 
 var controllerSet = wire.NewSet(controllers.NewUserController, controllers.NewRoomController)
 

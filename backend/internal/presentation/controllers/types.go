@@ -42,3 +42,11 @@ type CreateRoomApiResponse struct {
 type SearchUserApiResponse struct {
 	Data SearchUserResponse `json:"data"`
 }
+
+type JoinRoomResponse struct {
+	RoomID string `json:"room_id"`
+}
+
+type JoinRoomApiResponse struct {
+	Data JoinRoomResponse `json:"data"`
+}
