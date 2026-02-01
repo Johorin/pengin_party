@@ -8,7 +8,7 @@ const Top = () => {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
             <div className="w-full max-w-md space-y-6">
                 {/* 部屋を作るボタン */}
-                <Link href="/top/create_room" className="block">
+                <Link href="/top/waiting" className="block">
                     <button
                         className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-6 px-8 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center space-x-3 group"
                     >
