@@ -33,14 +33,31 @@ const JoinRoom = () => {
         setError('');
 
         try {
-            // TODO: 部屋参加処理のAPIを実装
-            // 現時点では、部屋IDの検証のみ行い、成功したと仮定して遷移
-            console.log('部屋に参加:', roomId);
+            const idToken = await user.getIdToken();
+            
+            const res = await fetch(process.env.NEXT_PUBLIC_BACKEND_API_ENDPOINT + '/rooms/join', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${idToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    room_id: roomId
+                }),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || '部屋への参加に失敗しました');
+            }
+
+            const data = await res.json();
+            console.log('部屋参加成功:', data);
             
             // 部屋参加成功後、待機画面に遷移（ホストではない）
             router.push(`/top/waiting?roomId=${roomId}&isHost=false`);
-        } catch (err) {
-            setError('部屋への参加に失敗しました');
+        } catch (err: any) {
+            setError(err.message || '部屋への参加に失敗しました');
             setLoading(false);
         }
     };
