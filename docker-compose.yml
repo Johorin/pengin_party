@@ -67,8 +67,6 @@ services:
     environment:
       - WATCHPACK_POLLING=true
     tty: true
-    # command: sh -c "npm install && npm run dev"
-    # command: sh -c "yarn install && yarn dev" # yarnだとうまくいかない
     ports:
       - "3001:3001"
     networks:

@@ -10,8 +10,8 @@ type RoomApiResponse struct {
 }
 
 type UserResponse struct {
-	ID uint `json:"id"`
-	UID uint `json:"uid"`
+	ID   uint   `json:"id"`
+	UID  uint   `json:"uid"`
 	Name string `json:"name"`
 }
 

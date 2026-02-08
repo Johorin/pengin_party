@@ -6,12 +6,12 @@ package di
 import (
 	roomUC "pengin_party/internal/application/usecases/room/usecase"
 	userUC "pengin_party/internal/application/usecases/user/usecase"
+	"pengin_party/internal/infrastructure/firebase"
 	"pengin_party/internal/infrastructure/repositories/rdb"
 	rdbRepo "pengin_party/internal/infrastructure/repositories/rdb/repository"
 	"pengin_party/internal/infrastructure/repositories/redis"
 	redisRepo "pengin_party/internal/infrastructure/repositories/redis/repository"
 	"pengin_party/internal/presentation/controllers"
-	"pengin_party/internal/infrastructure/firebase"
 
 	"github.com/google/wire"
 )
@@ -35,6 +35,7 @@ var useCaseSet = wire.NewSet(
 	userUC.NewIsExistUserUseCase,
 	roomUC.NewCreateRoomUseCase,
 	roomUC.NewJoinRoomUseCase,
+	roomUC.NewGetParticipantsUseCase,
 )
 
 var controllerSet = wire.NewSet(

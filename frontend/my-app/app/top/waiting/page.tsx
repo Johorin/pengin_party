@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCurrentUser } from '@/app/hooks/useCurrentUser';
@@ -63,10 +63,75 @@ const WaitingRoom = () => {
             // URLを更新してroomIdとisHostを反映
             router.replace(`/top/waiting?roomId=${newRoomId}&isHost=true`);
         }
-        
-        // TODO: WebSocket等で参加者の更新を監視
-        // 現時点ではUIのみの実装
     }, [user, loading, searchParams, router]);
+
+    // 参加者リストを更新する関数（WebSocketメッセージから取得）
+    const updateParticipants = useCallback((allParticipants: string[]) => {
+        // ホストを除く参加者リストを設定
+        const guestParticipants = allParticipants.slice(1);
+        setParticipants(guestParticipants);
+    }, []);
+
+    // WebSocket接続と参加者リストの更新
+    useEffect(() => {
+        if (!roomId || !user) return;
+
+        // WebSocketサーバーのURL
+        const wsUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || 'ws://localhost:3001';
+        const ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+            console.log('WebSocket接続が確立されました');
+            console.log(JSON.stringify({
+                type: 'join',
+                roomId: roomId,
+                guest: user?.displayName
+            }));
+            // 部屋に参加
+            ws.send(JSON.stringify({
+                type: 'join',
+                roomId: roomId,
+                guest: user?.displayName
+            }));
+        };
+
+        ws.onmessage = (event) => {
+            try {
+                // メッセージが文字列でない場合や空の場合はスキップ
+                if (typeof event.data !== 'string' || !event.data.trim()) {
+                    return;
+                }
+
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'participants-updated' && data.participants) {
+                    // WebSocketメッセージから参加者リストを取得して更新
+                    updateParticipants(data.participants);
+                } else if (data.type === 'joined') {
+                    // 部屋への参加が確認された
+                    console.log('部屋に参加しました:', data.roomId);
+                }
+            } catch (error) {
+                // JSONパースエラーは無視（無効なメッセージやテストメッセージなど）
+                // ただし、デバッグ用にログを出力
+                if (process.env.NODE_ENV === 'development') {
+                    console.warn('WebSocketメッセージのパースエラー（無視します）:', event.data, error);
+                }
+            }
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocketエラー:', error);
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket接続が閉じられました');
+        };
+
+        return () => {
+            ws.close();
+        };
+    }, [roomId, user, updateParticipants]);
 
     const handleStartGame = () => {
         // TODO: ゲーム開始処理を実装

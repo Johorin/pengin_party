@@ -1,3 +1,10 @@
+
+make down:
+	docker compose down
+	docker compose build --no-cache
+	docker compose up -d
+	@migrate-up
+
 # マイグレーションファイルを作成
 create-migration:
 	@if [ -z "$(name)" ]; then \

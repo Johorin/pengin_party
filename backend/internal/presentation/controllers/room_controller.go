@@ -1,8 +1,13 @@
 package controllers
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"net/http"
+	"os"
 	"pengin_party/internal/application/usecases/room/usecase"
+	"pengin_party/internal/infrastructure/firebase"
 	"pengin_party/internal/infrastructure/middleware"
 	"strings"
 
@@ -15,17 +20,23 @@ type RoomController interface {
 }
 
 type roomController struct {
-	createRoomUseCase *usecase.CreateRoomUseCase
-	joinRoomUseCase   *usecase.JoinRoomUseCase
+	createRoomUseCase      *usecase.CreateRoomUseCase
+	joinRoomUseCase        *usecase.JoinRoomUseCase
+	getParticipantsUseCase *usecase.GetParticipantsUseCase
+	firebase               firebase.FirebaseInterface
 }
 
 func NewRoomController(
 	createRoomUseCase *usecase.CreateRoomUseCase,
 	joinRoomUseCase *usecase.JoinRoomUseCase,
+	getParticipantsUseCase *usecase.GetParticipantsUseCase,
+	firebase firebase.FirebaseInterface,
 ) RoomController {
 	return &roomController{
-		createRoomUseCase: createRoomUseCase,
-		joinRoomUseCase:   joinRoomUseCase,
+		createRoomUseCase:      createRoomUseCase,
+		joinRoomUseCase:        joinRoomUseCase,
+		getParticipantsUseCase: getParticipantsUseCase,
+		firebase:               firebase,
 	}
 }
 
@@ -89,6 +100,61 @@ func (r *roomController) Join(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "部屋への参加に失敗しました"})
 		return
 	}
+
+	// WebSocketサーバーに参加者追加を通知（参加者リストも含める）
+	go func() {
+		websocketURL := os.Getenv("WEBSOCKET_URL")
+		if websocketURL == "" {
+			websocketURL = "http://localhost:3001"
+		}
+
+		// 参加者リストを取得
+		ctx := context.Background()
+		userUids, err := r.getParticipantsUseCase.Execute(ctx, roomId)
+		if err != nil {
+			// 参加者リストの取得に失敗しても通知は送信（エラーログのみ）
+			return
+		}
+
+		// Firebase Admin SDKを使って各UIDからユーザー名を取得
+		authClient, err := r.firebase.GetFirebase().Auth(ctx)
+		if err != nil {
+			return
+		}
+
+		participantNames := make([]string, 0, len(userUids))
+		for _, uid := range userUids {
+			userRecord, err := authClient.GetUser(ctx, uid)
+			if err != nil {
+				participantNames = append(participantNames, uid)
+				continue
+			}
+
+			name := userRecord.DisplayName
+			if name == "" {
+				name = userRecord.Email
+			}
+			if name == "" {
+				name = uid
+			}
+			participantNames = append(participantNames, name)
+		}
+
+		notificationData := map[string]interface{}{
+			"roomId":       roomId,
+			"participants": participantNames,
+		}
+		jsonData, _ := json.Marshal(notificationData)
+
+		req, _ := http.NewRequest("POST", websocketURL+"/notify-participant-joined", bytes.NewBuffer(jsonData))
+		req.Header.Set("Content-Type", "application/json")
+
+		client := &http.Client{}
+		_, err = client.Do(req)
+		if err != nil {
+			// WebSocketサーバーへの通知が失敗してもエラーにしない（ログのみ）
+		}
+	}()
 
 	c.JSON(http.StatusOK, JoinRoomApiResponse{
 		Data: JoinRoomResponse{

@@ -2,5 +2,12 @@
   "type": "module",
   "dependencies": {
     "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
   }
 }
