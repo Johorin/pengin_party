@@ -4,13 +4,16 @@
 package di
 
 import (
+	"pengin_party/internal/application/services"
 	roomUC "pengin_party/internal/application/usecases/room/usecase"
 	userUC "pengin_party/internal/application/usecases/user/usecase"
+	wcUC "pengin_party/internal/application/usecases/websocket/usecase"
 	"pengin_party/internal/infrastructure/firebase"
 	"pengin_party/internal/infrastructure/repositories/rdb"
 	rdbRepo "pengin_party/internal/infrastructure/repositories/rdb/repository"
 	"pengin_party/internal/infrastructure/repositories/redis"
 	redisRepo "pengin_party/internal/infrastructure/repositories/redis/repository"
+	wsRepo "pengin_party/internal/infrastructure/websocket"
 	"pengin_party/internal/presentation/controllers"
 
 	"github.com/google/wire"
@@ -30,17 +33,27 @@ var redisRepositorySet = wire.NewSet(
 	redisRepo.NewRoomRepository,
 )
 
+var websocketRepositorySet = wire.NewSet(
+	wsRepo.NewConnectionRepository,
+)
+
+var serviceSet = wire.NewSet(
+	services.NewWebSocketService,
+)
+
 var useCaseSet = wire.NewSet(
 	userUC.NewCreateUserUseCase,
 	userUC.NewIsExistUserUseCase,
 	roomUC.NewCreateRoomUseCase,
 	roomUC.NewJoinRoomUseCase,
 	roomUC.NewGetParticipantsUseCase,
+	wcUC.NewHandleWebSocketUseCase,
 )
 
 var controllerSet = wire.NewSet(
 	controllers.NewUserController,
 	controllers.NewRoomController,
+	controllers.NewWebSocketController,
 )
 
 var serverControllerSet = wire.NewSet(
@@ -60,6 +73,8 @@ func InitializeControllers() (*ControllerSet, error) {
 		infrastructureSet,
 		rdbRepositorySet,
 		redisRepositorySet,
+		websocketRepositorySet,
+		serviceSet,
 		useCaseSet,
 		controllerSet,
 		serverControllerSet,

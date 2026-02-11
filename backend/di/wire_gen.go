@@ -8,13 +8,16 @@ package di
 
 import (
 	"github.com/google/wire"
+	"pengin_party/internal/application/services"
 	usecase2 "pengin_party/internal/application/usecases/room/usecase"
 	"pengin_party/internal/application/usecases/user/usecase"
+	usecase3 "pengin_party/internal/application/usecases/websocket/usecase"
 	"pengin_party/internal/infrastructure/firebase"
 	"pengin_party/internal/infrastructure/repositories/rdb"
 	"pengin_party/internal/infrastructure/repositories/rdb/repository"
 	"pengin_party/internal/infrastructure/repositories/redis"
 	repository2 "pengin_party/internal/infrastructure/repositories/redis/repository"
+	"pengin_party/internal/infrastructure/websocket"
 	"pengin_party/internal/presentation/controllers"
 )
 
@@ -36,12 +39,17 @@ func InitializeControllers() (*ControllerSet, error) {
 	roomRepository := repository2.NewRoomRepository(redisInterface)
 	createRoomUseCase := usecase2.NewCreateRoomUseCase(redisInterface, roomRepository)
 	joinRoomUseCase := usecase2.NewJoinRoomUseCase(roomRepository)
-	roomController := controllers.NewRoomController(createRoomUseCase, joinRoomUseCase)
-	serverController := controllers.NewServerController(userController, roomController)
+	getParticipantsUseCase := usecase2.NewGetParticipantsUseCase(roomRepository)
 	firebaseInterface, err := firebase.Init()
 	if err != nil {
 		return nil, err
 	}
+	connectionRepository := websocket.NewConnectionRepository()
+	webSocketService := services.NewWebSocketService(connectionRepository)
+	roomController := controllers.NewRoomController(createRoomUseCase, joinRoomUseCase, getParticipantsUseCase, firebaseInterface, webSocketService)
+	handleWebSocketUseCase := usecase3.NewHandleWebSocketUseCase(connectionRepository)
+	webSocketController := controllers.NewWebSocketController(handleWebSocketUseCase)
+	serverController := controllers.NewServerController(userController, roomController, webSocketController)
 	diControllerSet := &ControllerSet{
 		ServerController: serverController,
 		DB:               dbInterface,
@@ -59,9 +67,13 @@ var rdbRepositorySet = wire.NewSet(repository.NewUserRepository)
 
 var redisRepositorySet = wire.NewSet(repository2.NewRoomRepository)
 
-var useCaseSet = wire.NewSet(usecase.NewCreateUserUseCase, usecase.NewIsExistUserUseCase, usecase2.NewCreateRoomUseCase, usecase2.NewJoinRoomUseCase)
+var websocketRepositorySet = wire.NewSet(websocket.NewConnectionRepository)
 
-var controllerSet = wire.NewSet(controllers.NewUserController, controllers.NewRoomController)
+var serviceSet = wire.NewSet(services.NewWebSocketService)
+
+var useCaseSet = wire.NewSet(usecase.NewCreateUserUseCase, usecase.NewIsExistUserUseCase, usecase2.NewCreateRoomUseCase, usecase2.NewJoinRoomUseCase, usecase2.NewGetParticipantsUseCase, usecase3.NewHandleWebSocketUseCase)
+
+var controllerSet = wire.NewSet(controllers.NewUserController, controllers.NewRoomController, controllers.NewWebSocketController)
 
 var serverControllerSet = wire.NewSet(controllers.NewServerController)
 

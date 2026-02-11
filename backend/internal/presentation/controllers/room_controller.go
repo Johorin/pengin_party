@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"pengin_party/internal/application/services"
 	"pengin_party/internal/application/usecases/room/usecase"
 	"pengin_party/internal/infrastructure/firebase"
 	"pengin_party/internal/infrastructure/middleware"
@@ -24,6 +25,7 @@ type roomController struct {
 	joinRoomUseCase        *usecase.JoinRoomUseCase
 	getParticipantsUseCase *usecase.GetParticipantsUseCase
 	firebase               firebase.FirebaseInterface
+	websocketService       services.WebSocketService
 }
 
 func NewRoomController(
@@ -31,12 +33,14 @@ func NewRoomController(
 	joinRoomUseCase *usecase.JoinRoomUseCase,
 	getParticipantsUseCase *usecase.GetParticipantsUseCase,
 	firebase firebase.FirebaseInterface,
+	websocketService services.WebSocketService,
 ) RoomController {
 	return &roomController{
 		createRoomUseCase:      createRoomUseCase,
 		joinRoomUseCase:        joinRoomUseCase,
 		getParticipantsUseCase: getParticipantsUseCase,
 		firebase:               firebase,
+		websocketService:       websocketService,
 	}
 }
 
@@ -154,6 +158,15 @@ func (r *roomController) Join(c *gin.Context) {
 		if err != nil {
 			// WebSocketサーバーへの通知が失敗してもエラーにしない（ログのみ）
 		}
+	}()
+
+	go func() {
+		message := map[string]interface{}{
+			"type": "participants-updated",
+			"roomId": roomId,
+			"participants": "test",
+		}
+		r.websocketService.BroadcastToRoom(roomId, message)
 	}()
 
 	c.JSON(http.StatusOK, JoinRoomApiResponse{

@@ -56,6 +56,7 @@ func main() {
 	{
 		authenticated.POST("/rooms", scon.RoomController.Create)    // マッチング部屋を作成（to Redis）
 		authenticated.POST("/rooms/join", scon.RoomController.Join) // マッチング部屋に参加（to Redis）
+		authenticated.GET("/websocket", scon.WebSocketController.Handle)
 	}
 
 	router.Run(":4000")
